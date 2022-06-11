@@ -9,21 +9,20 @@ const app = express();
 
 app.use(cors());
 
+app.use(express.json());
+
 connection();
 
 //Credentials
 //asevilla16
-//NTPiU3a2ntf7cTGo
+//ZgBhSnhLKjLIenWp
 //190.92.33.112
+//190.92.33.118/32
 
 // Routes
+app.use('/api/usuarios', require('./routes/usuarios'))
+app.use('/api/login', require('./routes/auth'))
 
-app.get('/', (req, res) => {
-    res.json({
-        ok: true,
-        msg: 'Hello there'
-    })
-})
 
 app.listen(process.env.port, () => {
     console.log('Server listening in port ' + process.env.port)
