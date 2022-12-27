@@ -5,11 +5,22 @@ const res = require('express/lib/response');
 const { generateJWT } = require('../helpers/jwt');
 
 const getUsers = async (req, res) => {
-    const usuarios = await Usuario.find({}, 'nombre email role google');
+    
+    const from = Number(req.query.from) || 0;
+    const limit = Number(req.query.limit) || 5;
+
+    const [usuarios, total] = await Promise.all([
+        Usuario.find({}, 'nombre email role google img')
+                .skip(from)
+                .limit(limit),
+
+        Usuario.countDocuments()
+    ]);
+
     res.json({
         ok: true,
         usuarios,
-        uid: req.uid
+        total
     })
 }
 
@@ -77,7 +88,6 @@ const editUser = async (req, res = response) => {
         }
 
         campos.email = email;
-
         const updatedUser = await Usuario.findByIdAndUpdate(id, campos, {new: true})
 
         res.json({
@@ -120,7 +130,6 @@ const deleteUser = async (req, res = response) => {
         })
     }
 }
-
 
 module.exports = {
     getUsers,
