@@ -2,9 +2,9 @@ const { response } = require('express')
 const Hospital = require('../models/hospital');
 
 
-const getHospitales = async(req, res = response) => {
+const getHospitales = async (req, res = response) => {
     const hospitales = await Hospital.find()
-                        .populate('usuario', 'nombre')
+        .populate('usuario', 'nombre')
 
     res.json({
         ok: true,
@@ -12,10 +12,10 @@ const getHospitales = async(req, res = response) => {
     })
 }
 
-const createHospital = async(req, res = response) => {
+const createHospital = async (req, res = response) => {
 
     const uid = req.uid;
-    
+
     const hospital = new Hospital({
         usuario: uid,
         ...req.body
@@ -37,18 +37,68 @@ const createHospital = async(req, res = response) => {
     }
 }
 
-const updateHospital = (req, res = response) => {
-    res.json({
-        ok: true,
-        msg: "update hospitales"
-    })
+const updateHospital = async (req, res = response) => {
+
+    const hospitalId = req.params.id;
+    const uid = req.uid
+
+    try {
+
+        const hospital = await Hospital.findById(hospitalId);
+
+        if(!hospital){
+            return res.status(404).json({
+                ok: false,
+                msg: "Hospital no encontrado"
+            }) 
+        }
+
+        const cambiosHospital = {
+            ...req.body,
+            usuario: uid
+        }
+
+        const hospitalActualizado = await Hospital.findByIdAndUpdate(hospitalId, cambiosHospital, {new: true});
+
+        res.json({
+            ok: true,
+            hospital: hospitalActualizado
+        })
+    } catch (error) {
+        res.status(500).json({
+            ok: false,
+            msg: "Hable con el admin"
+        })
+    }
+
 }
 
-const deleteHospital = (req, res = response) => {
-    res.json({
-        ok: true,
-        msg: "update hospitales"
-    })
+const deleteHospital = async (req, res = response) => {
+    const hospitalId = req.params.id;
+
+    try {
+
+        const hospital = await Hospital.findById(hospitalId);
+
+        if(!hospital){
+            return res.status(404).json({
+                ok: false,
+                msg: "Hospital no encontrado"
+            }) 
+        }
+
+        await Hospital.findByIdAndDelete(hospitalId);
+
+        res.json({
+            ok: true,
+            msg: "Hospital eliminado"
+        })
+    } catch (error) {
+        res.status(500).json({
+            ok: false,
+            msg: "Hable con el admin"
+        })
+    }
 }
 
 

@@ -21,13 +21,19 @@ router.post(
 
 router.put(
     '/:id', 
-    [],
+    [
+        validarJWT,
+        check('nombre', 'El nombre del medico es requerido').not().isEmpty(),
+        validarCampos
+    ],
     updateMedico
 );
 
 router.delete(
     '/:id',
-    [],
+    [
+        validarJWT
+    ],
     deleteMedico
 )
 
